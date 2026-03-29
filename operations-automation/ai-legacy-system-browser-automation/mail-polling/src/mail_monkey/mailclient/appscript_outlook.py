@@ -39,9 +39,30 @@ class AppscriptOutlookClient(BaseClient):
 
 
     def get_folder(self, name):
-        """ get an outlook folder by name
+        """ get an outlook folder by name.
+        
+        For 'inbox', finds the account inbox with the most messages
+        to avoid returning the empty local/On My Computer inbox.
         """
         name = name.lower().strip()
+        
+        # For inbox, find the one with actual messages
+        if name == "inbox":
+            best_folder = None
+            best_count = -1
+            for folder in self.outlook.mail_folders():
+                try:
+                    fname = folder.name()
+                    if fname.lower() == "inbox":
+                        count = folder.count(each=k.message)
+                        if count > best_count:
+                            best_count = count
+                            best_folder = folder
+                except Exception:
+                    continue
+            if best_folder is not None:
+                return AppscriptOutlookFolder(best_folder)
+        
         try:
             return AppscriptOutlookFolder(getattr(self.outlook, name))
         except AttributeError:
@@ -128,15 +149,35 @@ class AppscriptOutlookFolder(BaseFolder):
         self.folder = folder
 
     def get_messages(self, start=None, end=None):
-        """ get messages from folder
+        """ get messages from folder, newest first.
+        
+        Uses indexed access from the end of the mailbox to avoid
+        iterating through thousands of old messages.
         """
         messages = self.folder.messages
 
         if start and end:
             messages = messages[(its.modification_date >= start).AND(its.modification_date <= end)]
+            for message in messages():
+                yield AppscriptOutlookMessage(message)
+            return
 
-        for message in messages():
-            yield AppscriptOutlookMessage(message)
+        # Get total count and iterate from newest (end) to oldest
+        try:
+            total = self.folder.count(each=k.message)
+            if total == 0:
+                return
+            # Iterate from the last message backwards (newest first)
+            for i in range(total, max(total - 100, 0), -1):
+                try:
+                    msg = messages[i]
+                    yield AppscriptOutlookMessage(msg)
+                except Exception:
+                    continue
+        except Exception:
+            # Fallback to original iteration if count fails
+            for message in messages():
+                yield AppscriptOutlookMessage(message)
 
 
     def get_name(self):

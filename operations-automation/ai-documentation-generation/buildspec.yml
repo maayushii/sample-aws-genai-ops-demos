@@ -50,5 +50,5 @@ phases:
       - export PATH="/root/.local/bin:$PATH"
       - echo "Uploading documentation to S3..."
       # We're still in target-repo directory from build phase
-      - aws s3 cp Documentation/ s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ --recursive
+      - aws s3 cp ATXDocumentation/ s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ --recursive
       - echo "Documentation uploaded to s3://$OUTPUT_BUCKET/documentation/$JOB_ID/"

@@ -4,7 +4,7 @@ set -e
 echo "=== Password Reset Chatbot Deployment ==="
 
 # Check prerequisites using shared script
-source ../../shared/scripts/check-prerequisites.sh agentcore 2.31.13
+source ../../shared/scripts/check-prerequisites.sh --required-service agentcore --min-aws-cli-version 2.31.13 --require-cdk
 
 # Use region from shared prerequisites
 REGION=$AWS_REGION

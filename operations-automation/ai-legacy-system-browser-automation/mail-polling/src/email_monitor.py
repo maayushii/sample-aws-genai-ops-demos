@@ -252,10 +252,13 @@ class EmailMonitor:
             Exception: If unable to access the inbox.
         """
         target_emails: List[EmailData] = []
+        logger.debug("Starting inbox scan...")
         
         try:
             client = self._get_mail_client()
+            logger.debug("Got mail client, getting inbox folder...")
             inbox = client.get_folder("inbox")
+            logger.debug("Got inbox folder, iterating messages...")
             
             # Limit to recent messages to avoid COM iteration issues
             message_count = 0
@@ -268,6 +271,7 @@ class EmailMonitor:
                     
                 try:
                     subject = message.get_subject()
+                    logger.debug(f"Message {message_count}: subject='{subject}'")
                     
                     # Skip if not a target email (check early to avoid unnecessary work)
                     if not self.is_target_email(subject):
@@ -305,13 +309,14 @@ class EmailMonitor:
                     logger.info(f"Found target email: {subject}")
                     
                 except Exception as e:
-                    logger.debug(f"Error processing message: {e}")
+                    logger.warning(f"Error processing message {message_count}: {e}")
                     continue
                     
         except Exception as e:
-            logger.error(f"Error scanning inbox: {e}")
+            logger.error(f"Error scanning inbox: {e}", exc_info=True)
             # Return what we found so far instead of raising
         
+        logger.debug(f"Inbox scan complete. Scanned {message_count if 'message_count' in dir() else 0} messages, found {len(target_emails)} target emails.")
         return target_emails
 
     def trigger_browser_automation(self, email_data: EmailData) -> bool:

@@ -53,6 +53,8 @@ class AppscriptOutlookClient(BaseClient):
             for folder in self.outlook.mail_folders():
                 try:
                     fname = folder.name()
+                    if not isinstance(fname, str):
+                        continue
                     if fname.lower() == "inbox":
                         count = folder.count(each=k.message)
                         if count > best_count:
@@ -162,13 +164,13 @@ class AppscriptOutlookFolder(BaseFolder):
                 yield AppscriptOutlookMessage(message)
             return
 
-        # Get total count and iterate from newest (end) to oldest
+        # Get total count and iterate from newest (index 1) to oldest
         try:
             total = self.folder.count(each=k.message)
             if total == 0:
                 return
-            # Iterate from the last message backwards (newest first)
-            for i in range(total, max(total - 100, 0), -1):
+            # Iterate from index 1 (newest) forward
+            for i in range(1, min(total + 1, 101)):
                 try:
                     msg = messages[i]
                     yield AppscriptOutlookMessage(msg)

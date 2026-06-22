@@ -1,0 +1,24 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/app.ts",
+  "context": {
+    "monitoringAccount": {
+      "accountId": "058742762629",
+      "region": "us-east-1"
+    },
+    "sourceAccounts": [
+      {"accountId":"528094985190","region":"us-east-1"},{"accountId":"275959714363","region":"us-east-1"}
+    ],
+    "billing": {
+      "enterpriseSupportMonthlyFee": 110000,
+      "creditPercentage": 75,
+      "ratePerAgentSecond": 0.0083
+    },
+    "alerts": {
+      "email": "rahania@amazon.fr",
+      "warningPercent": 75,
+      "criticalPercent": 100,
+      "enableForecastedAlarm": false
+    },
+    "dashboardEnabled": true
+  }
+}

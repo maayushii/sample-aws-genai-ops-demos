@@ -1,0 +1,207 @@
+<mxfile host="app.diagrams.net" agent="Kiro">
+  <diagram name="DevOps Agent Monitoring Architecture" id="arch-diagram-1">
+    <mxGraphModel dx="3356" dy="1095" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title-bar" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#232F3E;strokeColor=#232F3E;" value="" vertex="1">
+          <mxGeometry height="50" width="1320" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="title-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#FFFFFF;" value="DevOps Agent Monitoring at Scale — Architecture" vertex="1">
+          <mxGeometry height="50" width="1320" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="monitoring-account" parent="1" style="sketch=0;outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=14;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_account;strokeColor=#CD2264;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;dashed=0;" value="Central Monitoring Account (MonitoringStack)" vertex="1">
+          <mxGeometry height="500" width="1080" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="oam-sink" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;" value="OAM Sink&#xa;(DevOpsAgentMonitoringSink)" vertex="1">
+          <mxGeometry height="78" width="78" x="100" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="ssm-param" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.systems_manager;" value="SSM Parameter&#xa;(/devops-agent-monitoring/sink-arn)" vertex="1">
+          <mxGeometry height="60" width="60" x="109" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="eventbridge" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge;" value="EventBridge Rule&#xa;(every 1 hour)" vertex="1">
+          <mxGeometry height="78" width="78" x="300" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="usage-checker" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" value="UsageCheckerFn&#xa;(Node.js 20, 30s timeout)" vertex="1">
+          <mxGeometry height="78" width="78" x="300" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="cw-native-metrics" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;" value="AWS/AIDevOps Metrics&#xa;(cross-account via OAM)" vertex="1">
+          <mxGeometry height="78" width="78" x="100" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="cw-custom-metrics" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;" value="Custom Metrics&#xa;(DevOpsAgentMonitoring&#xa;namespace)" vertex="1">
+          <mxGeometry height="78" width="78" x="540" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="cw-dashboard" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;" value="CloudWatch Dashboard&#xa;(DevOpsAgentUsageDashboard)&#xa;Gauge + Trends + Per-Account" vertex="1">
+          <mxGeometry height="78" width="78" x="540" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="sns-topic" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sns;" value="SNS Topic&#xa;(enforceSSL=true)&#xa;Email + Slack + PagerDuty" vertex="1">
+          <mxGeometry height="78" width="78" x="780" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="email-user" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#232F3E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;" value="Team&#xa;(Email / Slack / PagerDuty)" vertex="1">
+          <mxGeometry height="78" width="78" x="1000" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="credit-calc-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;verticalAlign=middle;" value="Credit Calculator&#xa;(build-time, cdk synth)&#xa;&#xa;billing config → thresholds&#xa;→ Lambda env vars" vertex="1">
+          <mxGeometry height="100" width="180" x="500" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-eb-lambda" edge="1" parent="1" source="eventbridge" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#ED7100;fontSize=10;" target="usage-checker" value="triggers hourly">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-lambda-reads" edge="1" parent="1" source="usage-checker" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#8C4FFF;fontSize=9;" target="cw-native-metrics" value="GetMetricData&#xa;(reads cross-account)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="359" />
+              <mxPoint x="260" y="179" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-lambda-publishes" edge="1" parent="1" source="usage-checker" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#666666;fontSize=10;" target="cw-custom-metrics" value="PutMetricData">
+          <mxGeometry relative="1" x="0.0123" y="-11" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-lambda-sns" edge="1" parent="1" source="usage-checker" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#DD344C;fontSize=9;" target="sns-topic" value="SNS Publish&#xa;(if threshold exceeded)">
+          <mxGeometry relative="1" x="0.602" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-custom-dashboard" edge="1" parent="1" source="cw-custom-metrics" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#999999;dashed=1;dashPattern=8 8;fontSize=9;" target="cw-dashboard" value="feeds">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-native-dashboard" edge="1" parent="1" source="cw-native-metrics" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#999999;dashed=1;dashPattern=8 8;fontSize=9;" target="cw-dashboard" value="SEARCH queries">
+          <mxGeometry relative="1" x="0.3157" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="140" y="130" />
+              <mxPoint x="200" y="130" />
+              <mxPoint x="480" y="130" />
+              <mxPoint x="579" y="130" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-sns-email" edge="1" parent="1" source="sns-topic" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#666666;" target="email-user" value="notifications">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-sink-ssm" edge="1" parent="1" source="oam-sink" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#999999;dashed=1;dashPattern=8 8;fontSize=9;" target="ssm-param" value="ARN stored">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-oam-enables" edge="1" parent="1" source="oam-sink" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#8C4FFF;dashed=1;dashPattern=8 8;fontSize=9;" target="cw-native-metrics" value="enables cross-account&#xa;metric visibility">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="source-account-1" parent="1" style="sketch=0;outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=13;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_account;strokeColor=#147EBA;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;dashed=0;" value="Source Account 1 (SourceStack)" vertex="1">
+          <mxGeometry height="360" width="480" x="40" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="oam-link-1" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;" value="OAM Link&#xa;(resourceTypes: Metric,&#xa;labelTemplate: $AccountName)" vertex="1">
+          <mxGeometry height="78" width="78" x="100" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="iam-slr-1" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.iam;" value="Service-Linked Role&#xa;(cloudwatch-crossaccount)" vertex="1">
+          <mxGeometry height="78" width="78" x="320" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="slr-lambda-1" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" value="SLR Creator Lambda&#xa;(Custom Resource +&#xa;Provider)" vertex="1">
+          <mxGeometry height="60" width="60" x="329" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="devops-agent-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=0;" value="AWS/AIDevOps Metrics&#xa;ConsumedInvestigationTime&#xa;ConsumedEvaluationTime&#xa;ConsumedOnDemandTime" vertex="1">
+          <mxGeometry height="70" width="180" x="49" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="source-account-n" parent="1" style="sketch=0;outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=13;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_account;strokeColor=#147EBA;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;dashed=0;" value="Source Account N (SourceStack)" vertex="1">
+          <mxGeometry height="360" width="480" x="600" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="oam-link-n" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;" value="OAM Link&#xa;(resourceTypes: Metric,&#xa;labelTemplate: $AccountName)" vertex="1">
+          <mxGeometry height="78" width="78" x="660" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="iam-slr-n" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.iam;" value="Service-Linked Role&#xa;(cloudwatch-crossaccount)" vertex="1">
+          <mxGeometry height="78" width="78" x="880" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="slr-lambda-n" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" value="SLR Creator Lambda&#xa;(Custom Resource +&#xa;Provider)" vertex="1">
+          <mxGeometry height="60" width="60" x="880" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="devops-agent-n" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=0;" value="AWS/AIDevOps Metrics&#xa;ConsumedInvestigationTime&#xa;ConsumedEvaluationTime&#xa;ConsumedOnDemandTime" vertex="1">
+          <mxGeometry height="70" width="180" x="610" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-link1-sink" edge="1" parent="1" source="oam-link-1" style="endArrow=classic;html=1;rounded=1;strokeWidth=2;strokeColor=#8C4FFF;fontSize=9;" target="oam-sink" value="shares metrics">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="820" />
+              <mxPoint x="20" y="339" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-linkn-sink" edge="1" parent="1" source="oam-link-n" style="endArrow=classic;html=1;rounded=1;strokeWidth=2;strokeColor=#8C4FFF;fontSize=9;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="oam-sink" value="shares metrics">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="640" />
+              <mxPoint x="240" y="640" />
+              <mxPoint x="240" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-agent1-link1" edge="1" parent="1" source="devops-agent-1" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#999999;" target="oam-link-1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-agentn-linkn" edge="1" parent="1" source="devops-agent-n" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#999999;" target="oam-link-n" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-slr1-iam1" edge="1" parent="1" source="slr-lambda-1" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#DD344C;fontSize=8;" target="iam-slr-1" value="CreateServiceLinkedRole">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-slrn-iamn" edge="1" parent="1" source="slr-lambda-n" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#DD344C;fontSize=8;" target="iam-slr-n" value="CreateServiceLinkedRole">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ssm-link1" edge="1" parent="1" source="ssm-param" style="endArrow=classic;html=1;rounded=1;strokeWidth=1;strokeColor=#999999;dashed=1;dashPattern=8 8;fontSize=8;" target="oam-link-1" value="reads sink ARN">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ssm-linkn" edge="1" parent="1" source="ssm-param" style="endArrow=classic;html=1;rounded=1;strokeWidth=1;strokeColor=#999999;dashed=1;dashPattern=8 8;fontSize=8;" target="oam-link-n" value="reads sink ARN">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="520" />
+              <mxPoint x="440" y="660" />
+              <mxPoint x="560" y="660" />
+              <mxPoint x="560" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#cccccc;dashed=1;" value="" vertex="1">
+          <mxGeometry height="260" width="220" x="1140" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#333333;" value="Legend" vertex="1">
+          <mxGeometry height="25" width="80" x="1160" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-purple" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#8C4FFF;strokeColor=#8C4FFF;" value="" vertex="1">
+          <mxGeometry height="4" width="30" x="1160" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-purple-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Cross-account OAM flow" vertex="1">
+          <mxGeometry height="25" width="150" x="1200" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-orange" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ED7100;strokeColor=#ED7100;" value="" vertex="1">
+          <mxGeometry height="4" width="30" x="1160" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-orange-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Lambda / Compute" vertex="1">
+          <mxGeometry height="25" width="150" x="1200" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-grey" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#666666;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="4" width="30" x="1160" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-grey-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Data flow" vertex="1">
+          <mxGeometry height="25" width="150" x="1200" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-red" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DD344C;strokeColor=#DD344C;" value="" vertex="1">
+          <mxGeometry height="4" width="30" x="1160" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-red-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="IAM / Security" vertex="1">
+          <mxGeometry height="25" width="150" x="1200" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-yellow" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="" vertex="1">
+          <mxGeometry height="15" width="30" x="1160" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-yellow-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Build-time (cdk synth)" vertex="1">
+          <mxGeometry height="25" width="150" x="1200" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-dashed" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1;dashPattern=8 8;" value="" vertex="1">
+          <mxGeometry height="4" width="30" x="1160" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-dashed-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Config / reference" vertex="1">
+          <mxGeometry height="25" width="150" x="1200" y="318" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

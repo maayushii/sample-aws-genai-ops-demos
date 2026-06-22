@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Agent Monitoring — Configuration</title>
+  <style>
+    :root {
+      --primary: #232f3e;
+      --accent: #ff9900;
+      --accent-hover: #ec7211;
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --border: #d1d5db;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    label .hint {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    input, select {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+    }
+
+    input.invalid {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 0.78rem;
+      margin-top: 0.2rem;
+      min-height: 1rem;
+    }
+
+    /* Source accounts */
+    .account-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .account-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .account-row .form-group { flex: 1; }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: var(--primary);
+    }
+
+    .btn-accent:hover { background: var(--accent-hover); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover { background: var(--bg); }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 0.5rem 0.75rem;
+    }
+
+    .btn-danger:hover { background: #fef2f2; }
+
+    .btn-add {
+      align-self: flex-start;
+      margin-top: 0.5rem;
+    }
+
+    /* Preview panel */
+    .preview-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .preview-stat {
+      text-align: center;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: var(--radius);
+    }
+
+    .preview-stat .value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .preview-stat .label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .preview-stat.warning .value { color: var(--warning); }
+    .preview-stat.danger .value { color: var(--danger); }
+
+    /* JSON preview */
+    .json-preview {
+      background: var(--primary);
+      color: #e5e7eb;
+      padding: 1rem;
+      border-radius: var(--radius);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .actions .btn {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .preview-panel { grid-template-columns: 1fr; }
+      .account-row { flex-direction: column; align-items: stretch; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚙️ DevOps Agent Monitoring — Configuration</h1>
+      <p>Fill in your parameters below. The generated <code>cdk.json</code> will be ready to deploy.</p>
+    </header>
+
+    <!-- Monitoring Account -->
+    <div class="card">
+      <h2>🏠 Monitoring Account (Central)</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Account ID <span class="hint">(12 digits)</span></label>
+          <input type="text" id="monAccountId" placeholder="111111111111" maxlength="12" pattern="\d{12}">
+          <div class="error-msg" id="monAccountIdError"></div>
+        </div>
+        <div class="form-group">
+          <label>Region</label>
+          <select id="monRegion">
+            <option value="us-east-1">us-east-1</option>
+            <option value="us-east-2">us-east-2</option>
+            <option value="us-west-1">us-west-1</option>
+            <option value="us-west-2">us-west-2</option>
+            <option value="eu-west-1">eu-west-1</option>
+            <option value="eu-west-2">eu-west-2</option>
+            <option value="eu-west-3">eu-west-3</option>
+            <option value="eu-central-1">eu-central-1</option>
+            <option value="ap-southeast-1">ap-southeast-1</option>
+            <option value="ap-southeast-2">ap-southeast-2</option>
+            <option value="ap-northeast-1">ap-northeast-1</option>
+            <option value="ap-south-1">ap-south-1</option>
+            <option value="ca-central-1">ca-central-1</option>
+            <option value="sa-east-1">sa-east-1</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Source Accounts -->
+    <div class="card">
+      <h2>🔗 Source Accounts (Monitored)</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+        Add all AWS accounts that use DevOps Agent and should be monitored.
+      </p>
+      <div class="account-list" id="accountList">
+        <!-- Dynamic rows inserted here -->
+      </div>
+      <button class="btn btn-outline btn-add" onclick="addAccountRow()">+ Add Account</button>
+    </div>
+
+    <!-- Billing -->
+    <div class="card">
+      <h2>💰 Billing Parameters</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Enterprise Support Monthly Fee <span class="hint">(USD)</span></label>
+          <input type="number" id="monthlyFee" placeholder="15000" min="1" step="1">
+          <div class="error-msg" id="monthlyFeeError"></div>
+        </div>
+        <div class="form-group">
+          <label>Credit Percentage <span class="hint">(default: 75%)</span></label>
+          <input type="number" id="creditPct" placeholder="75" min="1" max="100" value="75">
+        </div>
+        <div class="form-group">
+          <label>Rate per Agent-Second <span class="hint">(USD, default: $0.0083)</span></label>
+          <input type="number" id="ratePerSec" placeholder="0.0083" min="0.0001" step="0.0001" value="0.0083">
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="card">
+      <h2>🚨 Alert Settings</h2>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Alert Email <span class="hint">(will be subscribed to SNS topic — confirmation email sent on deploy)</span></label>
+          <input type="email" id="alertEmail" placeholder="ops-team@example.com">
+          <div class="error-msg" id="alertEmailError"></div>
+        </div>
+        <div class="form-group">
+          <label>Warning Threshold <span class="hint">(% of credit)</span></label>
+          <input type="number" id="warningPct" placeholder="75" min="1" max="99" value="75">
+        </div>
+        <div class="form-group">
+          <label>Critical Threshold <span class="hint">(% of credit)</span></label>
+          <input type="number" id="criticalPct" placeholder="100" min="1" max="100" value="100">
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional -->
+    <div class="card">
+      <h2>⚡ Optional Settings</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Organization ID <span class="hint">(for org-wide sink policy)</span></label>
+          <input type="text" id="orgId" placeholder="o-xxxxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label>Dashboard</label>
+          <select id="dashboardEnabled">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Preview -->
+    <div class="card">
+      <h2>📊 Credit Calculation Preview</h2>
+      <div class="preview-panel">
+        <div class="preview-stat">
+          <div class="value" id="prevCredit">—</div>
+          <div class="label">Monthly Credit (USD)</div>
+        </div>
+        <div class="preview-stat warning">
+          <div class="value" id="prevWarning">—</div>
+          <div class="label">Warning Threshold</div>
+        </div>
+        <div class="preview-stat danger">
+          <div class="value" id="prevCritical">—</div>
+          <div class="label">Critical Threshold</div>
+        </div>
+      </div>
+      <div class="preview-panel">
+        <div class="preview-stat">
+          <div class="value" id="prevTotalHours">—</div>
+          <div class="label">Total Agent Hours</div>
+        </div>
+        <div class="preview-stat warning">
+          <div class="value" id="prevWarningHours">—</div>
+          <div class="label">Warning (hours)</div>
+        </div>
+        <div class="preview-stat danger">
+          <div class="value" id="prevCriticalHours">—</div>
+          <div class="label">Critical (hours)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generated JSON -->
+    <div class="card">
+      <h2>📄 Generated cdk.json</h2>
+      <div class="json-preview" id="jsonPreview">Fill in the form above to generate configuration...</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-accent" onclick="downloadConfig()">⬇️ Download cdk.json</button>
+      <button class="btn btn-outline" onclick="copyConfig()">📋 Copy to Clipboard</button>
+    </div>
+  </div>
+
+  <script>
+    // --- State ---
+    let sourceAccounts = [{ accountId: '', region: 'us-east-1' }];
+
+    // --- Init ---
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAccountRows();
+      attachListeners();
+      updatePreview();
+    });
+
+    // --- Source Account Management ---
+    function renderAccountRows() {
+      const container = document.getElementById('accountList');
+      container.innerHTML = sourceAccounts.map((acc, i) => `
+        <div class="account-row">
+          <div class="form-group">
+            <label>Account ID #${i + 1}</label>
+            <input type="text" class="source-account-id" data-index="${i}" 
+                   value="${acc.accountId}" placeholder="222222222222" maxlength="12">
+          </div>
+          <div class="form-group">
+            <label>Region</label>
+            <select class="source-region" data-index="${i}">
+              ${regionOptions(acc.region)}
+            </select>
+          </div>
+          ${sourceAccounts.length > 1 ? `<button class="btn btn-danger" onclick="removeAccount(${i})">✕</button>` : ''}
+        </div>
+      `).join('');
+
+      // Re-attach listeners for new inputs
+      container.querySelectorAll('.source-account-id').forEach(el => {
+        el.addEventListener('input', (e) => {
+          sourceAccounts[e.target.dataset.index].accountId = e.target.value;
+          updatePreview();
+        });
+      });
+      container.querySelectorAll('.source-region').forEach(el => {
+        el.addEventListener('change', (e) => {
+          sourceAccounts[e.target.dataset.index].region = e.target.value;
+          updatePreview();
+        });
+      });
+    }
+
+    function addAccountRow() {
+      sourceAccounts.push({ accountId: '', region: 'us-east-1' });
+      renderAccountRows();
+    }
+
+    function removeAccount(index) {
+      sourceAccounts.splice(index, 1);
+      renderAccountRows();
+      updatePreview();
+    }
+
+    function regionOptions(selected) {
+      const regions = [
+        'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
+        'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-central-1',
+        'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'ap-south-1',
+        'ca-central-1', 'sa-east-1'
+      ];
+      return regions.map(r => `<option value="${r}" ${r === selected ? 'selected' : ''}>${r}</option>`).join('');
+    }
+
+    // --- Listeners ---
+    function attachListeners() {
+      const fields = ['monAccountId', 'monRegion', 'monthlyFee', 'creditPct', 
+                      'ratePerSec', 'alertEmail', 'warningPct', 'criticalPct',
+                      'orgId', 'dashboardEnabled'];
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener('input', updatePreview);
+        el.addEventListener('change', updatePreview);
+      });
+    }
+
+    // --- Validation ---
+    function validateAccountId(value) {
+      return /^\d{12}$/.test(value);
+    }
+
+    function validateEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    // --- Preview & Generation ---
+    function updatePreview() {
+      const fee = parseFloat(document.getElementById('monthlyFee').value) || 0;
+      const creditPct = parseFloat(document.getElementById('creditPct').value) || 75;
+      const rate = parseFloat(document.getElementById('ratePerSec').value) || 0.0083;
+      const warningPct = parseFloat(document.getElementById('warningPct').value) || 75;
+      const criticalPct = parseFloat(document.getElementById('criticalPct').value) || 100;
+
+      // Calculate
+      const monthlyCredit = fee * creditPct / 100;
+      const totalSeconds = Math.floor(monthlyCredit / rate);
+      const warningSeconds = Math.floor(totalSeconds * warningPct / 100);
+      const criticalSeconds = Math.floor(totalSeconds * criticalPct / 100);
+
+      // Update preview stats
+      document.getElementById('prevCredit').textContent = fee > 0 ? `$${monthlyCredit.toLocaleString()}` : '—';
+      document.getElementById('prevWarning').textContent = fee > 0 ? `${warningPct}%` : '—';
+      document.getElementById('prevCritical').textContent = fee > 0 ? `${criticalPct}%` : '—';
+      document.getElementById('prevTotalHours').textContent = fee > 0 ? `${(totalSeconds / 3600).toFixed(0)}h` : '—';
+      document.getElementById('prevWarningHours').textContent = fee > 0 ? `${(warningSeconds / 3600).toFixed(0)}h` : '—';
+      document.getElementById('prevCriticalHours').textContent = fee > 0 ? `${(criticalSeconds / 3600).toFixed(0)}h` : '—';
+
+      // Validate
+      const monId = document.getElementById('monAccountId').value;
+      showError('monAccountIdError', monId && !validateAccountId(monId) ? 'Must be exactly 12 digits' : '');
+
+      const email = document.getElementById('alertEmail').value;
+      showError('alertEmailError', email && !validateEmail(email) ? 'Invalid email format' : '');
+
+      showError('monthlyFeeError', fee < 0 ? 'Must be positive' : '');
+
+      // Generate JSON
+      document.getElementById('jsonPreview').textContent = JSON.stringify(generateConfig(), null, 2);
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = msg;
+    }
+
+    function generateConfig() {
+      const config = {
+        app: "npx ts-node --prefer-ts-exts bin/app.ts",
+        context: {
+          monitoringAccount: {
+            accountId: document.getElementById('monAccountId').value || 'YOUR_ACCOUNT_ID',
+            region: document.getElementById('monRegion').value
+          },
+          sourceAccounts: sourceAccounts
+            .filter(a => a.accountId)
+            .map(a => ({ accountId: a.accountId, region: a.region })),
+          billing: {
+            enterpriseSupportMonthlyFee: parseFloat(document.getElementById('monthlyFee').value) || 15000,
+            creditPercentage: parseFloat(document.getElementById('creditPct').value) || 75,
+            ratePerAgentSecond: parseFloat(document.getElementById('ratePerSec').value) || 0.0083
+          },
+          alerts: {
+            email: document.getElementById('alertEmail').value || 'your-email@example.com',
+            warningPercent: parseInt(document.getElementById('warningPct').value) || 75,
+            criticalPercent: parseInt(document.getElementById('criticalPct').value) || 100,
+            enableForecastedAlarm: false
+          },
+          dashboardEnabled: document.getElementById('dashboardEnabled').value === 'true'
+        }
+      };
+
+      // Add optional org ID
+      const orgId = document.getElementById('orgId').value.trim();
+      if (orgId) {
+        config.context.orgId = orgId;
+      }
+
+      // Ensure at least one source account placeholder
+      if (config.context.sourceAccounts.length === 0) {
+        config.context.sourceAccounts = [{ accountId: 'SOURCE_ACCOUNT_ID', region: 'us-east-1' }];
+      }
+
+      return config;
+    }
+
+    // --- Actions ---
+    function downloadConfig() {
+      const config = generateConfig();
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cdk.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyConfig() {
+      const config = generateConfig();
+      navigator.clipboard.writeText(JSON.stringify(config, null, 2)).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => btn.textContent = original, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

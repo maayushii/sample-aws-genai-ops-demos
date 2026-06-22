@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedrock Account Intelligence</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0e1a; color: #e0e0e0; }
+        .header { background: linear-gradient(135deg, #1a1f36 0%, #0d1117 100%); padding: 20px 32px; border-bottom: 1px solid #2d3748; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { font-size: 22px; font-weight: 600; color: #fff; }
+        .header h1 span { color: #f59e0b; }
+        .header .version { font-size: 12px; color: #718096; }
+        .controls { padding: 16px 32px; background: #111827; border-bottom: 1px solid #1f2937; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .controls label { font-size: 13px; color: #9ca3af; }
+        .controls select, .controls input { background: #1f2937; border: 1px solid #374151; color: #e5e7eb; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+        .controls input { width: 200px; }
+        .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .btn-primary { background: #f59e0b; color: #000; }
+        .btn-primary:hover { background: #d97706; }
+        .btn-primary:disabled { background: #4b5563; color: #9ca3af; cursor: not-allowed; }
+        .btn-secondary { background: #374151; color: #e5e7eb; }
+        .btn-secondary:hover { background: #4b5563; }
+        .dashboard { padding: 24px 32px; }
+        .status-bar { padding: 12px 32px; background: #111827; font-size: 13px; color: #6b7280; display: flex; justify-content: space-between; }
+        .status-bar .account { color: #10b981; font-weight: 500; }
+
+        /* Summary Cards */
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .card { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 20px; }
+        .card .label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .card .value { font-size: 28px; font-weight: 700; color: #fff; }
+        .card .sub { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+        .card.alert .value { color: #ef4444; }
+        .card.good .value { color: #10b981; }
+        .card.warn .value { color: #f59e0b; }
+
+        /* Sections */
+        .section { margin-bottom: 28px; }
+        .section-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #1f2937; }
+
+        /* Charts */
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .chart-box { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 16px; min-height: 300px; }
+        .chart-box h3 { font-size: 14px; color: #9ca3af; margin-bottom: 8px; }
+
+        /* Tables */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 10px 12px; background: #1f2937; color: #9ca3af; font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        td { padding: 10px 12px; border-bottom: 1px solid #1f2937; }
+        tr:hover td { background: #1a2332; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+        .badge-green { background: #064e3b; color: #34d399; }
+        .badge-red { background: #7f1d1d; color: #fca5a5; }
+        .badge-yellow { background: #78350f; color: #fcd34d; }
+        .badge-gray { background: #374151; color: #9ca3af; }
+        .badge-blue { background: #1e3a5f; color: #93c5fd; }
+
+        /* Recommendations */
+        .rec-list { display: flex; flex-direction: column; gap: 10px; }
+        .rec { background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 14px 16px; border-left: 4px solid #6b7280; }
+        .rec.HIGH { border-left-color: #ef4444; }
+        .rec.MEDIUM { border-left-color: #f59e0b; }
+        .rec.LOW { border-left-color: #10b981; }
+        .rec .rec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .rec .rec-title { font-weight: 600; color: #fff; font-size: 14px; }
+        .rec .rec-detail { font-size: 13px; color: #9ca3af; margin-bottom: 6px; }
+        .rec .rec-action { font-size: 12px; color: #60a5fa; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 60px; color: #6b7280; }
+        .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #374151; border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 80px 20px; }
+        .empty-state h2 { font-size: 20px; color: #fff; margin-bottom: 8px; }
+        .empty-state p { color: #6b7280; font-size: 14px; max-width: 500px; margin: 0 auto 20px; }
+
+        /* Export panel */
+        .export-panel { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+        .export-panel pre { background: #0a0e1a; padding: 16px; border-radius: 6px; font-size: 12px; overflow-x: auto; max-height: 400px; color: #e5e7eb; }
+
+        @media (max-width: 768px) {
+            .chart-grid { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Bedrock <span>Account Intelligence</span></h1>
+            <div class="version">v{{ version }} — TAM Dashboard</div>
+        </div>
+        <div>
+            <button class="btn btn-secondary" onclick="exportQBR()" id="exportBtn" disabled>Export for QBR</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div>
+            <label>AWS Profile</label><br>
+            <input type="text" id="profile" placeholder="default (or Isengard profile)">
+        </div>
+        <div>
+            <label>Region</label><br>
+            <select id="region">
+                <option value="us-east-1">us-east-1</option>
+                <option value="us-west-2">us-west-2</option>
+                <option value="eu-west-1">eu-west-1</option>
+                <option value="eu-central-1">eu-central-1</option>
+                <option value="ap-southeast-1">ap-southeast-1</option>
+                <option value="ap-northeast-1">ap-northeast-1</option>
+                <option value="ap-south-1">ap-south-1</option>
+                <option value="sa-east-1">sa-east-1</option>
+            </select>
+        </div>
+        <div>
+            <label>Lookback</label><br>
+            <select id="hours">
+                <option value="24">24 hours</option>
+                <option value="72">3 days</option>
+                <option value="168" selected>7 days</option>
+                <option value="336">14 days</option>
+                <option value="720">30 days</option>
+            </select>
+        </div>
+        <div style="align-self: flex-end;">
+            <button class="btn btn-primary" onclick="runScan()" id="scanBtn">Scan Account</button>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="statusText">Ready — enter credentials and scan</span>
+        <span id="accountInfo" class="account"></span>
+    </div>
+
+    <div class="dashboard" id="dashboard">
+        <div class="empty-state" id="emptyState">
+            <h2>Welcome to Bedrock Account Intelligence</h2>
+            <p>Configure your AWS profile (Isengard credentials) and region, then click "Scan Account" to analyze Bedrock usage, quotas, cost, and performance.</p>
+        </div>
+    </div>
+
+    <script>
+    let scanData = null;
+
+    async function checkIdentity() {
+        const profile = document.getElementById('profile').value || undefined;
+        const params = profile ? `?profile=${profile}` : '';
+        try {
+            const res = await fetch(`/api/identity${params}`);
+            const data = await res.json();
+            if (data.account_id) {
+                document.getElementById('accountInfo').textContent = `Account: ${data.account_id}`;
+            }
+            return data;
+        } catch(e) {
+            return null;
+        }
+    }
+
+    async function runScan() {
+        const btn = document.getElementById('scanBtn');
+        const status = document.getElementById('statusText');
+        btn.disabled = true;
+        btn.textContent = 'Scanning...';
+        status.textContent = 'Scanning Bedrock resources, metrics, and cost data...';
+
+        const profile = document.getElementById('profile').value || '';
+        const region = document.getElementById('region').value;
+        const hours = document.getElementById('hours').value;
+
+        const params = new URLSearchParams({ region, hours, cost_days: 30 });
+        if (profile) params.set('profile', profile);
+
+        try {
+            // Check identity first
+            await checkIdentity();
+
+            const res = await fetch(`/api/scan?${params}`);
+            scanData = await res.json();
+
+            if (scanData.error) {
+                status.textContent = `Error: ${scanData.error}`;
+                btn.disabled = false;
+                btn.textContent = 'Scan Account';
+                return;
+            }
+
+            renderDashboard(scanData);
+            status.textContent = `Scan complete — ${scanData.region} — ${new Date(scanData.scan_time).toLocaleString()}`;
+            document.getElementById('exportBtn').disabled = false;
+        } catch(e) {
+            status.textContent = `Error: ${e.message}. Check AWS credentials.`;
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Scan Account';
+    }
+
+    function renderDashboard(data) {
+        const dash = document.getElementById('dashboard');
+        const s = data.summary;
+
+        dash.innerHTML = `
+            <!-- Summary Cards -->
+            <div class="cards">
+                <div class="card"><div class="label">Models Available</div><div class="value">${s.total_models_available}</div><div class="sub">${s.models_enabled} enabled</div></div>
+                <div class="card ${s.total_invocations_7d > 0 ? 'good' : ''}"><div class="label">Invocations (7d)</div><div class="value">${formatNum(s.total_invocations_7d)}</div></div>
+                <div class="card ${s.throttle_rate > 1 ? 'alert' : s.throttle_rate > 0 ? 'warn' : 'good'}"><div class="label">Throttle Rate</div><div class="value">${s.throttle_rate}%</div><div class="sub">${formatNum(s.total_throttles_7d)} throttled</div></div>
+                <div class="card"><div class="label">Avg Latency</div><div class="value">${s.avg_latency_ms > 1000 ? (s.avg_latency_ms/1000).toFixed(1)+'s' : s.avg_latency_ms+'ms'}</div></div>
+                <div class="card"><div class="label">Input Tokens (7d)</div><div class="value">${formatNum(s.total_input_tokens_7d)}</div></div>
+                <div class="card"><div class="label">Output Tokens (7d)</div><div class="value">${formatNum(s.total_output_tokens_7d)}</div></div>
+                <div class="card ${s.total_cost_30d > 1000 ? 'warn' : ''}"><div class="label">Cost (30d)</div><div class="value">$${s.total_cost_30d.toLocaleString()}</div></div>
+                <div class="card"><div class="label">Provisioned</div><div class="value">${s.provisioned_throughputs}</div></div>
+                <div class="card"><div class="label">Custom Models</div><div class="value">${s.custom_models}</div></div>
+                <div class="card"><div class="label">Guardrails</div><div class="value">${s.guardrails}</div></div>
+            </div>
+
+            <!-- Charts -->
+            <div class="section">
+                <div class="section-title">Usage & Performance Trends</div>
+                <div class="chart-grid">
+                    <div class="chart-box"><h3>Invocations</h3><div id="chartInvocations"></div></div>
+                    <div class="chart-box"><h3>Latency (ms)</h3><div id="chartLatency"></div></div>
+                    <div class="chart-box"><h3>Throttles</h3><div id="chartThrottles"></div></div>
+                    <div class="chart-box"><h3>Token Usage</h3><div id="chartTokens"></div></div>
+                </div>
+            </div>
+
+            <!-- Cost -->
+            <div class="section">
+                <div class="section-title">Cost Breakdown</div>
+                <div class="chart-grid">
+                    <div class="chart-box"><h3>Daily Cost</h3><div id="chartCost"></div></div>
+                    <div class="chart-box"><h3>Cost by Usage Type</h3><div id="chartCostType"></div></div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="section">
+                <div class="section-title">Recommendations</div>
+                <div class="rec-list" id="recList"></div>
+            </div>
+
+            <!-- Models Table -->
+            <div class="section">
+                <div class="section-title">Foundation Models (${data.models.length})</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Model ID</th><th>Provider</th><th>Access</th><th>Status</th><th>Modalities</th><th>Streaming</th></tr></thead>
+                        <tbody id="modelsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quotas Table -->
+            <div class="section">
+                <div class="section-title">Service Quotas (${data.quotas.length})</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Quota</th><th>Value</th><th>Unit</th><th>Adjustable</th></tr></thead>
+                        <tbody id="quotasTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Provisioned Throughput -->
+            ${data.provisioned_throughput.length > 0 ? `
+            <div class="section">
+                <div class="section-title">Provisioned Throughput</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Name</th><th>Model Units</th><th>Status</th><th>Commitment</th><th>Created</th></tr></thead>
+                        <tbody id="ptTable"></tbody>
+                    </table>
+                </div>
+            </div>` : ''}
+
+            <!-- Guardrails -->
+            ${data.guardrails.length > 0 ? `
+            <div class="section">
+                <div class="section-title">Guardrails</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Name</th><th>ID</th><th>Status</th><th>Version</th></tr></thead>
+                        <tbody id="guardrailsTable"></tbody>
+                    </table>
+                </div>
+            </div>` : ''}
+
+            <!-- Export Panel -->
+            <div class="section" id="exportSection" style="display:none;">
+                <div class="section-title">QBR Export</div>
+                <div class="export-panel"><pre id="exportContent"></pre></div>
+            </div>
+        `;
+
+        renderCharts(data);
+        renderTables(data);
+        renderRecommendations(data.recommendations);
+    }
+
+    function renderCharts(data) {
+        const layout = { paper_bgcolor: '#111827', plot_bgcolor: '#111827', font: { color: '#9ca3af', size: 11 },
+            margin: { t: 10, b: 40, l: 50, r: 20 }, xaxis: { gridcolor: '#1f2937' }, yaxis: { gridcolor: '#1f2937' } };
+        const config = { displayModeBar: false, responsive: true };
+
+        // Invocations
+        const inv = data.metrics.Invocations || [];
+        Plotly.newPlot('chartInvocations', [{ x: inv.map(d=>d.timestamp), y: inv.map(d=>d.value), type: 'scatter', fill: 'tozeroy', line: { color: '#3b82f6' }, fillcolor: 'rgba(59,130,246,0.1)' }], layout, config);
+
+        // Latency
+        const lat = data.metrics.InvocationLatency || [];
+        Plotly.newPlot('chartLatency', [{ x: lat.map(d=>d.timestamp), y: lat.map(d=>d.value), type: 'scatter', line: { color: '#f59e0b' } }], layout, config);
+
+        // Throttles
+        const thr = data.metrics.InvocationThrottles || [];
+        Plotly.newPlot('chartThrottles', [{ x: thr.map(d=>d.timestamp), y: thr.map(d=>d.value), type: 'bar', marker: { color: '#ef4444' } }], layout, config);
+
+        // Tokens
+        const inp = data.metrics.InputTokenCount || [];
+        const out = data.metrics.OutputTokenCount || [];
+        Plotly.newPlot('chartTokens', [
+            { x: inp.map(d=>d.timestamp), y: inp.map(d=>d.value), name: 'Input', type: 'scatter', line: { color: '#10b981' } },
+            { x: out.map(d=>d.timestamp), y: out.map(d=>d.value), name: 'Output', type: 'scatter', line: { color: '#8b5cf6' } }
+        ], {...layout, showlegend: true, legend: { x: 0, y: 1, font: { size: 10 } }}, config);
+
+        // Cost daily
+        const costByDate = {};
+        (data.cost || []).forEach(c => { costByDate[c.date] = (costByDate[c.date] || 0) + c.cost; });
+        const dates = Object.keys(costByDate).sort();
+        Plotly.newPlot('chartCost', [{ x: dates, y: dates.map(d=>costByDate[d]), type: 'bar', marker: { color: '#f59e0b' } }], layout, config);
+
+        // Cost by type
+        const costByType = {};
+        (data.cost || []).forEach(c => { costByType[c.usage_type] = (costByType[c.usage_type] || 0) + c.cost; });
+        const types = Object.entries(costByType).sort((a,b) => b[1]-a[1]).slice(0, 10);
+        Plotly.newPlot('chartCostType', [{ labels: types.map(t=>t[0].replace('USE1-','').replace('USW2-','')), values: types.map(t=>t[1]),
+            type: 'pie', hole: 0.4, textinfo: 'percent', marker: { colors: ['#f59e0b','#3b82f6','#10b981','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16'] }
+        }], {...layout, showlegend: true, legend: { font: { size: 9 } }}, config);
+    }
+
+    function renderTables(data) {
+        // Models
+        const mt = document.getElementById('modelsTable');
+        if (mt) {
+            mt.innerHTML = data.models.slice(0, 50).map(m => `<tr>
+                <td style="font-family:monospace;font-size:12px">${m.model_id}</td>
+                <td>${m.provider}</td>
+                <td>${accessBadge(m.access_status)}</td>
+                <td>${statusBadge(m.status)}</td>
+                <td>${m.input_modalities.join(', ')}</td>
+                <td>${m.streaming ? '✓' : '—'}</td>
+            </tr>`).join('');
+        }
+
+        // Quotas
+        const qt = document.getElementById('quotasTable');
+        if (qt) {
+            qt.innerHTML = data.quotas.map(q => `<tr>
+                <td>${q.name}</td>
+                <td style="font-weight:600">${q.value.toLocaleString()}</td>
+                <td>${q.unit}</td>
+                <td>${q.adjustable ? '<span class="badge badge-green">Yes</span>' : '<span class="badge badge-gray">No</span>'}</td>
+            </tr>`).join('');
+        }
+
+        // Provisioned throughput
+        const pt = document.getElementById('ptTable');
+        if (pt) {
+            pt.innerHTML = data.provisioned_throughput.map(p => `<tr>
+                <td>${p.name}</td>
+                <td>${p.model_units}</td>
+                <td>${statusBadge(p.status)}</td>
+                <td>${p.commitment || '—'}</td>
+                <td>${p.created ? new Date(p.created).toLocaleDateString() : '—'}</td>
+            </tr>`).join('');
+        }
+
+        // Guardrails
+        const gt = document.getElementById('guardrailsTable');
+        if (gt) {
+            gt.innerHTML = data.guardrails.map(g => `<tr>
+                <td>${g.name}</td>
+                <td style="font-family:monospace">${g.id}</td>
+                <td>${statusBadge(g.status)}</td>
+                <td>${g.version}</td>
+            </tr>`).join('');
+        }
+    }
+
+    function renderRecommendations(recs) {
+        const el = document.getElementById('recList');
+        if (!el) return;
+        el.innerHTML = recs.map(r => `
+            <div class="rec ${r.severity}">
+                <div class="rec-header">
+                    <span class="rec-title">${r.title}</span>
+                    <span class="badge badge-${r.severity === 'HIGH' ? 'red' : r.severity === 'MEDIUM' ? 'yellow' : 'green'}">${r.severity}</span>
+                </div>
+                <div class="rec-detail">${r.detail}</div>
+                <div class="rec-action">→ ${r.action}</div>
+            </div>
+        `).join('');
+    }
+
+    function accessBadge(status) {
+        const map = { 'ENABLED': 'badge-green', 'DISABLED': 'badge-gray', 'UNKNOWN': 'badge-gray' };
+        return `<span class="badge ${map[status] || 'badge-gray'}">${status}</span>`;
+    }
+
+    function statusBadge(status) {
+        const map = { 'ACTIVE': 'badge-green', 'InService': 'badge-green', 'READY': 'badge-green',
+                      'LEGACY': 'badge-yellow', 'Creating': 'badge-blue', 'Updating': 'badge-blue',
+                      'Failed': 'badge-red' };
+        return `<span class="badge ${map[status] || 'badge-gray'}">${status}</span>`;
+    }
+
+    function formatNum(n) {
+        if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+        if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+        if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+        return n.toString();
+    }
+
+    async function exportQBR() {
+        if (!scanData) return;
+        const region = document.getElementById('region').value;
+        const profile = document.getElementById('profile').value || '';
+        const params = new URLSearchParams({ region });
+        if (profile) params.set('profile', profile);
+
+        const res = await fetch(`/api/export?${params}`);
+        const data = await res.json();
+
+        const section = document.getElementById('exportSection');
+        const content = document.getElementById('exportContent');
+        section.style.display = 'block';
+        content.textContent = JSON.stringify(data, null, 2);
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+    </script>
+</body>
+</html>

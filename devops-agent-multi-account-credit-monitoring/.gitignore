@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# CDK output (contains account-specific synthesized templates)
+cdk.out/
+
+# TypeScript build output
+*.js
+*.d.ts
+*.js.map
+!jest.config.js
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Kiro internal
+.kiro/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local

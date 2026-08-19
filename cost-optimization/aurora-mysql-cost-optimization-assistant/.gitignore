@@ -1,0 +1,10 @@
+# Generated reports
+aurora-cost-report-*/
+
+# Python
+__pycache__/
+*.pyc
+
+# CDK
+cdk.out*
+.venv/

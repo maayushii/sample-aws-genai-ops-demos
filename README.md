@@ -17,7 +17,9 @@ This repository contains deployable code samples demonstrating how generative AI
 | Natural Language Chaos Engineering with AWS FIS | Resilience | Transform natural language descriptions into validated AWS FIS experiment templates with current capabilities and intelligent caching | [resilience/ai-chaos-engineering-with-fis/](resilience/ai-chaos-engineering-with-fis/README.md) |
 | Intelligent EKS Incident Investigation with AWS DevOps Agent | Observability | Automatically detect, investigate, and diagnose EKS infrastructure incidents using AWS DevOps Agent — reducing mean time to resolution from hours to minutes | [observability/eks-investigation-devops-agent/](observability/eks-investigation-devops-agent/README.md) |
 | Intelligent AWS Site-to-Site VPN Tunnel Investigation with AWS DevOps Agent | Observability | Automatically detect, investigate, and diagnose Site-to-Site VPN tunnel failures with BGP routing using AWS DevOps Agent — reducing mean time to resolution from hours to minutes | [observability/aws-site-to-site-vpn-tunnel-investigation-devops-agent/](observability/aws-site-to-site-vpn-tunnel-investigation-devops-agent/README.md) |
-| AI Incident Response Playbook Builder | Security | Analyze AWS architecture and generate tailored IR playbooks with MITRE ATT&CK mapping, SSM Automation documents, and step-by-step response procedures | [security/ai-incident-response-playbook-builder/](security/ai-incident-response-playbook-builder/README.md) 
+| AI Incident Response Playbook Builder | Security | Analyze AWS architecture and generate tailored IR playbooks with MITRE ATT&CK mapping, SSM Automation documents, and step-by-step response procedures | [security/ai-incident-response-playbook-builder/](security/ai-incident-response-playbook-builder/README.md) |
+| Intelligent Aurora MySQL Incident Investigation with AWS DevOps Agent | Observability | Automatically detect, investigate, and diagnose Aurora MySQL incidents (connection storms, CPU spikes, deadlocks, failover) using AWS DevOps Agent with business-context enrichment via MCP | [observability/aurora-mysql-incident-investigation-devops-agent/](observability/aurora-mysql-incident-investigation-devops-agent/README.md) |
+| AI-Powered Aurora MySQL Cost Optimization Assistant | Cost Optimization | Read-only assistant that inventories Aurora MySQL clusters, reads 14-day utilization, and uses Amazon Bedrock (Nova) to produce right-sizing, Serverless v2, Graviton, and Reserved Instance savings recommendations | [cost-optimization/aurora-mysql-cost-optimization-assistant/](cost-optimization/aurora-mysql-cost-optimization-assistant/README.md) |
 
 ## Roadmap (Coming Soon)
 
@@ -30,6 +32,7 @@ This repository contains deployable code samples demonstrating how generative AI
 ```
 cost-optimization/
 ├── ai-graviton-migration-assessment/
+├── aurora-mysql-cost-optimization-assistant/
 └── aws-genai-cost-optimization-mcp-server/
 operations-automation/
 ├── ai-documentation-generation/
@@ -39,6 +42,7 @@ operations-automation/
 ├── anycompany-it-demo-portal/
 └── aws-services-lifecycle-tracker/
 observability/
+├── aurora-mysql-incident-investigation-devops-agent/
 ├── eks-investigation-devops-agent/
 └── aws-site-to-site-vpn-tunnel-investigation-devops-agent/
 resilience/

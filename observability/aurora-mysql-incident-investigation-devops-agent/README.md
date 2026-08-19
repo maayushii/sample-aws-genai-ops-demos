@@ -92,7 +92,47 @@ Dedicated alarms start with their actions disabled; the inject script enables th
 
 ## Architecture
 
-See [ARCHITECTURE.md](ARCHITECTURE.md). In short: an Aurora MySQL cluster (writer + reader) in isolated subnets, a public bastion/load-generator that injects scenarios over the MySQL protocol, CloudWatch alarms + an EventBridge failover rule fanning into SNS, and a conditional webhook Lambda that notifies DevOps Agent. Business context is served by a separate MCP Lambda behind API Gateway.
+```mermaid
+flowchart TB
+    laptop["Operator laptop<br/>inject-failure.sh &middot; aws cli"]
+    secrets["Secrets Manager<br/>aurora-demo/credentials"]
+
+    subgraph vpc["VPC &mdash; 2 AZs, no NAT"]
+        bastion["Bastion / load-generator<br/>mysql client"]
+        subgraph dbsub["Isolated DB subnets"]
+            writer["Aurora writer<br/>aurora-demo-writer"]
+            reader["Aurora reader<br/>aurora-demo-reader"]
+        end
+    end
+
+    cw["CloudWatch<br/>metrics &middot; Performance Insights &middot; logs"]
+    alarms["CloudWatch Alarms<br/>connections &middot; cpu &middot; deadlocks<br/>memory &middot; replica-lag"]
+    eb["EventBridge<br/>RDS failover events"]
+    sns["SNS<br/>aurora-demo-alarm"]
+    webhook["Webhook Lambda<br/>HMAC-signed"]
+    agent["Amazon DevOps Agent<br/>auto-investigation"]
+    mcp["MCP Server<br/>API Gateway + Lambda<br/>dependencies &middot; cost &middot; compliance"]
+
+    laptop -->|SSH :22| bastion
+    laptop -->|rds failover-db-cluster| writer
+    bastion -->|MySQL :3306| writer
+    bastion --> reader
+    bastion -->|reads secret| secrets
+    writer --> cw
+    reader --> cw
+    cw --> alarms
+    alarms --> sns
+    eb --> sns
+    sns -->|if webhook configured| webhook
+    webhook --> agent
+    agent -->|queries business context| mcp
+```
+
+- **Network**: an Aurora MySQL cluster (writer + reader) sits in isolated subnets; a public bastion/load-generator injects scenarios over the MySQL protocol. No NAT gateway (cost).
+- **Detection**: CloudWatch alarms (connections, CPU, deadlocks, memory, replica-lag) plus an EventBridge failover rule fan into a single SNS topic.
+- **Investigation**: a conditional webhook Lambda notifies Amazon DevOps Agent, which reads CloudWatch metrics, Performance Insights, and Aurora logs, then queries an MCP server (API Gateway + Lambda) for business context (dependencies, cost impact, compliance).
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full component breakdown and Well-Architected design notes.
 
 ## Cost & Cleanup
 
